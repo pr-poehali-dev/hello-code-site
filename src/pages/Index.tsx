@@ -205,7 +205,7 @@ const Index = () => {
             <div className="relative animate-scale-in">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl blur-3xl"></div>
               <img 
-                src="https://cdn.poehali.dev/projects/a7ead30e-0514-46d7-8d2d-38c65b9ba37c/files/43e7074b-a3d8-4c84-9589-3bbfc1c136ee.jpg"
+                src="https://cdn.poehali.dev/projects/a7ead30e-0514-46d7-8d2d-38c65b9ba37c/files/4c27af42-ebe1-47a3-9c00-b6e5dc3f8a92.jpg"
                 alt="Hello Code Robot"
                 className="relative w-full h-auto drop-shadow-2xl"
               />
