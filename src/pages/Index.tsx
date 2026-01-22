@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 const courses = [
   {
@@ -11,295 +12,351 @@ const courses = [
     title: 'Scratch',
     age: '6-9 лет',
     price: 3990,
+    oldPrice: 5990,
     lessons: 8,
-    duration: '1 месяц',
     icon: 'Blocks',
-    features: ['Визуальное программирование', 'Создание игр', 'Основы алгоритмов']
+    popular: false
   },
   {
     id: 2,
     title: 'Python',
     age: '10-14 лет',
     price: 4990,
+    oldPrice: 6990,
     lessons: 12,
-    duration: '3 месяца',
     icon: 'Code2',
-    features: ['Первый язык программирования', 'Игры и боты', 'Реальные проекты']
+    popular: true
   },
   {
     id: 3,
-    title: 'Web-разработка',
+    title: 'Web',
     age: '12-16 лет',
     price: 5990,
+    oldPrice: 7990,
     lessons: 16,
-    duration: '4 месяца',
     icon: 'Globe',
-    features: ['HTML, CSS, JavaScript', 'Свои сайты', 'Портфолио проектов']
-  }
-];
-
-const reviews = [
-  {
-    id: 1,
-    name: 'Елена Смирнова',
-    text: 'Сын занимается 4 месяца — создал уже 3 игры! Преподаватель умеет заинтересовать, теперь программирование любимое хобби.',
-    rating: 5,
-    child: 'Максим, 11 лет'
-  },
-  {
-    id: 2,
-    name: 'Андрей Петров',
-    text: 'Отличная школа! Дочка научилась делать сайты и даже помогла мне с визиткой для бизнеса. Очень довольны.',
-    rating: 5,
-    child: 'София, 13 лет'
-  },
-  {
-    id: 3,
-    name: 'Мария Козлова',
-    text: 'Пробный урок понравился сразу. Преподаватель нашёл подход к ребёнку, объясняет понятно. Продолжаем обучение!',
-    rating: 5,
-    child: 'Артём, 9 лет'
+    popular: false
   }
 ];
 
 const Index = () => {
-  const [formData, setFormData] = useState({ name: '', phone: '', age: '' });
+  const [formData, setFormData] = useState({ name: '', phone: '' });
+  const [showFloatingCTA, setShowFloatingCTA] = useState(false);
+  const [timeLeft, setTimeLeft] = useState({ hours: 23, minutes: 45, seconds: 30 });
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowFloatingCTA(window.scrollY > 800);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
+        if (prev.minutes > 0) return { hours: prev.hours, minutes: prev.minutes - 1, seconds: 59 };
+        if (prev.hours > 0) return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
+        return prev;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <div className="min-h-screen bg-white">
-      <header className="border-b sticky top-0 bg-white/95 backdrop-blur-sm z-50">
+      <div className={`fixed bottom-0 left-0 right-0 bg-gradient-to-r from-blue-600 to-orange-500 text-white p-4 shadow-2xl z-50 transition-transform duration-300 ${showFloatingCTA ? 'translate-y-0' : 'translate-y-full'}`}>
+        <div className="container mx-auto flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Icon name="Gift" size={24} />
+            <span className="font-bold text-lg">Первый урок БЕСПЛАТНО!</span>
+          </div>
+          <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 font-bold">
+            Записаться сейчас
+          </Button>
+        </div>
+      </div>
+
+      <header className="border-b bg-white sticky top-0 z-40 shadow-sm">
+        <div className="bg-gradient-to-r from-blue-600 to-orange-500 text-white py-2 text-center text-sm font-semibold">
+          🎁 Акция! Скидка 30% на первый месяц — осталось {timeLeft.hours}ч {timeLeft.minutes}м {timeLeft.seconds}с
+        </div>
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-orange-500 rounded-lg flex items-center justify-center">
               <Icon name="Code2" className="text-white" size={22} />
             </div>
             <span className="text-xl font-bold">Hello Code</span>
           </div>
           
-          <nav className="hidden md:flex items-center gap-8">
-            <a href="#courses" className="text-gray-600 hover:text-primary transition-colors font-medium">Курсы</a>
-            <a href="#about" className="text-gray-600 hover:text-primary transition-colors font-medium">О школе</a>
-            <a href="#reviews" className="text-gray-600 hover:text-primary transition-colors font-medium">Отзывы</a>
-            <Button size="sm" className="bg-primary hover:bg-primary/90">Пробный урок</Button>
-          </nav>
+          <div className="hidden md:flex items-center gap-3">
+            <Icon name="Phone" size={18} className="text-blue-600" />
+            <span className="font-semibold">+7 (999) 123-45-67</span>
+          </div>
 
-          <Button size="sm" className="md:hidden bg-primary">Записаться</Button>
+          <Button className="bg-gradient-to-r from-blue-600 to-orange-500 hover:opacity-90">
+            Пробный урок
+          </Button>
         </div>
       </header>
 
-      <section className="py-20 bg-gradient-to-br from-purple-50 to-orange-50">
+      <section className="py-16 bg-gradient-to-br from-blue-50 via-white to-orange-50">
         <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-[1.2fr,0.8fr] gap-12 items-center">
-            <div className="space-y-8">
-              <Badge className="bg-primary/10 text-primary border-0 px-3 py-1 text-sm font-medium">
-                Онлайн-школа программирования для детей
+          <div className="grid lg:grid-cols-[1.3fr,0.7fr] gap-12 items-center">
+            <div className="space-y-6">
+              <Badge className="bg-orange-100 text-orange-600 border-0 px-4 py-2 text-sm font-bold">
+                ⚡ Более 5000 детей уже учатся
               </Badge>
               
               <h1 className="text-5xl lg:text-6xl font-bold leading-tight">
-                Научим вашего ребёнка{' '}
-                <span className="text-primary">программировать</span>
+                Ваш ребёнок создаст первую игру{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500">
+                  уже на первом уроке
+                </span>
               </h1>
               
-              <p className="text-xl text-gray-600">
-                Индивидуальные онлайн-занятия с опытными преподавателями. 
-                Первый урок — бесплатно!
+              <p className="text-xl text-gray-600 leading-relaxed">
+                Индивидуальные онлайн-занятия по программированию. 
+                Преподаватель работает только с вашим ребёнком — никаких групп!
               </p>
 
+              <div className="bg-white border-2 border-orange-400 rounded-2xl p-6 space-y-4 shadow-lg">
+                <div className="font-bold text-lg mb-3">Бесплатный пробный урок включает:</div>
+                {[
+                  'Знакомство с преподавателем и платформой',
+                  'Создание первого проекта (игра или сайт)',
+                  'Индивидуальный план обучения',
+                  'Подбор курса под интересы ребёнка'
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center shrink-0 mt-0.5">
+                      <Icon name="Check" size={16} className="text-white" />
+                    </div>
+                    <span className="text-gray-700">{item}</span>
+                  </div>
+                ))}
+              </div>
+
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-lg">
-                  Попробовать бесплатно
+                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-orange-500 hover:opacity-90 text-lg h-14 shadow-xl">
+                  Записаться на бесплатный урок
                   <Icon name="ArrowRight" size={20} />
                 </Button>
-                <Button size="lg" variant="outline" className="border-2 text-lg">
-                  Посмотреть курсы
+                <Button size="lg" variant="outline" className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50 text-lg h-14">
+                  <Icon name="Play" size={20} />
+                  Посмотреть видео
                 </Button>
               </div>
 
-              <div className="grid grid-cols-3 gap-6 pt-6 border-t">
-                <div>
-                  <div className="text-3xl font-bold text-primary">3500+</div>
-                  <div className="text-sm text-gray-600 mt-1">учеников</div>
+              <div className="flex items-center gap-6 pt-4">
+                <div className="flex -space-x-2">
+                  {[1,2,3,4,5].map(i => (
+                    <div key={i} className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-orange-400 border-2 border-white"></div>
+                  ))}
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-secondary">98%</div>
-                  <div className="text-sm text-gray-600 mt-1">довольных</div>
-                </div>
-                <div>
-                  <div className="text-3xl font-bold text-primary">2 года</div>
-                  <div className="text-sm text-gray-600 mt-1">работаем</div>
+                  <div className="flex gap-1 mb-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Icon key={i} name="Star" size={16} className="text-yellow-400 fill-yellow-400" />
+                    ))}
+                  </div>
+                  <div className="text-sm text-gray-600">4.9 из 5 — 1200+ отзывов</div>
                 </div>
               </div>
             </div>
 
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-3xl blur-3xl"></div>
+              <div className="absolute -inset-4 bg-gradient-to-br from-blue-400/30 to-orange-400/30 rounded-3xl blur-2xl"></div>
               <img 
-                src="https://cdn.poehali.dev/projects/a7ead30e-0514-46d7-8d2d-38c65b9ba37c/files/1978a4ea-7b11-4948-8ffb-f903cddd6ec2.jpg"
-                alt="Kids learning coding"
+                src="https://cdn.poehali.dev/projects/a7ead30e-0514-46d7-8d2d-38c65b9ba37c/files/570bb6c5-19b6-4894-b547-ef76928ee03b.jpg"
+                alt="Happy student"
                 className="relative rounded-3xl shadow-2xl w-full"
               />
+              <div className="absolute -bottom-4 -right-4 bg-white rounded-2xl p-4 shadow-xl border-2 border-orange-400">
+                <div className="text-3xl font-bold text-orange-600">-30%</div>
+                <div className="text-sm font-semibold">Скидка сегодня</div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section id="about" className="py-20 bg-white">
+      <section className="py-16 bg-gray-900 text-white">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Почему Hello Code?</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Мы знаем, как увлечь детей программированием
-            </p>
-          </div>
+          <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
+            <div className="space-y-6">
+              <div className="text-red-400 font-bold text-lg">❌ БЕЗ программирования</div>
+              <ul className="space-y-4 text-gray-300">
+                <li className="flex items-start gap-3">
+                  <Icon name="X" className="text-red-400 shrink-0 mt-1" size={20} />
+                  <span>Бесцельно сидит в TikTok и играх</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Icon name="X" className="text-red-400 shrink-0 mt-1" size={20} />
+                  <span>Только потребляет контент</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Icon name="X" className="text-red-400 shrink-0 mt-1" size={20} />
+                  <span>Нет полезных навыков</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Icon name="X" className="text-red-400 shrink-0 mt-1" size={20} />
+                  <span>Непонятно, чем занять ребёнка</span>
+                </li>
+              </ul>
+            </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { icon: 'Video', title: 'Онлайн в Zoom', desc: 'Занимайтесь из любой точки мира' },
-              { icon: 'User', title: 'Индивидуально', desc: 'Преподаватель работает только с вашим ребёнком' },
-              { icon: 'Clock', title: 'Гибкий график', desc: 'Выбирайте удобное время для занятий' },
-              { icon: 'Trophy', title: 'Реальные проекты', desc: 'Ребёнок создаёт игры и сайты с первого урока' }
-            ].map((item, idx) => (
-              <Card key={idx} className="border-2 hover:border-primary transition-colors hover:shadow-lg">
-                <CardContent className="p-6 text-center space-y-4">
-                  <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto">
-                    <Icon name={item.icon as any} className="text-primary" size={32} />
-                  </div>
-                  <h3 className="font-bold text-lg">{item.title}</h3>
-                  <p className="text-gray-600 text-sm">{item.desc}</p>
-                </CardContent>
-              </Card>
-            ))}
+            <div className="space-y-6 bg-gradient-to-br from-blue-600 to-orange-500 p-8 rounded-3xl">
+              <div className="text-white font-bold text-lg">✅ С программированием</div>
+              <ul className="space-y-4 text-white">
+                <li className="flex items-start gap-3">
+                  <Icon name="Check" className="text-green-300 shrink-0 mt-1" size={20} />
+                  <span className="font-semibold">Создаёт игры и сайты</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Icon name="Check" className="text-green-300 shrink-0 mt-1" size={20} />
+                  <span className="font-semibold">Развивает логическое мышление</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Icon name="Check" className="text-green-300 shrink-0 mt-1" size={20} />
+                  <span className="font-semibold">Профессия будущего</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Icon name="Check" className="text-green-300 shrink-0 mt-1" size={20} />
+                  <span className="font-semibold">Гордится своими проектами</span>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </section>
 
-      <section id="courses" className="py-20 bg-gray-50">
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Наши курсы</h2>
-            <p className="text-xl text-gray-600">От первых шагов до профессиональной разработки</p>
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold mb-4">Выберите курс со скидкой 30%</h2>
+            <p className="text-xl text-gray-600">Акция действует только сегодня</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {courses.map((course) => (
-              <Card key={course.id} className="border-2 hover:border-primary transition-all hover:shadow-2xl">
-                <CardContent className="p-8 space-y-6">
-                  <div className="w-14 h-14 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
+              <Card key={course.id} className={`border-2 hover:shadow-2xl transition-all relative ${course.popular ? 'border-orange-400 scale-105' : 'border-gray-200'}`}>
+                {course.popular && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-1 rounded-full text-sm font-bold">
+                    ⭐ Хит продаж
+                  </div>
+                )}
+                <CardContent className="p-6 space-y-6">
+                  <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-orange-500 rounded-xl flex items-center justify-center">
                     <Icon name={course.icon as any} className="text-white" size={28} />
                   </div>
                   
                   <div>
-                    <h3 className="text-2xl font-bold mb-2">{course.title}</h3>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Icon name="Users" size={14} />
-                      <span>{course.age}</span>
-                      <span className="mx-1">•</span>
-                      <Icon name="Calendar" size={14} />
-                      <span>{course.duration}</span>
-                    </div>
+                    <h3 className="text-2xl font-bold mb-1">{course.title}</h3>
+                    <div className="text-sm text-gray-600">{course.age} • {course.lessons} уроков</div>
                   </div>
 
-                  <ul className="space-y-3">
-                    {course.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-start gap-2 text-sm text-gray-700">
-                        <Icon name="Check" size={18} className="text-primary shrink-0 mt-0.5" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="pt-6 border-t space-y-4">
+                  <div className="space-y-2">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-3xl font-bold">{course.price} ₽</span>
-                      <span className="text-gray-500 text-sm">/ {course.lessons} уроков</span>
+                      <span className="text-4xl font-bold text-blue-600">{course.price} ₽</span>
+                      <span className="text-gray-400 line-through text-lg">{course.oldPrice} ₽</span>
                     </div>
-                    <Button className="w-full bg-primary hover:bg-primary/90">
-                      Записаться на курс
-                    </Button>
+                    <div className="text-sm text-green-600 font-semibold">
+                      Экономия {course.oldPrice - course.price} ₽
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      <section id="reviews" className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Отзывы родителей</h2>
-            <p className="text-xl text-gray-600">Что говорят о нас</p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {reviews.map((review) => (
-              <Card key={review.id} className="border-2">
-                <CardContent className="p-6 space-y-4">
-                  <div className="flex gap-1">
-                    {[...Array(review.rating)].map((_, i) => (
-                      <Icon key={i} name="Star" size={18} className="text-yellow-400 fill-yellow-400" />
-                    ))}
-                  </div>
-                  <p className="text-gray-700 leading-relaxed">{review.text}</p>
-                  <div className="pt-4 border-t">
-                    <div className="font-semibold">{review.name}</div>
-                    <div className="text-sm text-gray-500">{review.child}</div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 bg-gradient-to-br from-primary to-secondary text-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div className="space-y-6">
-                <h2 className="text-4xl font-bold">Запишитесь на бесплатный пробный урок</h2>
-                <p className="text-lg text-purple-100">
-                  Познакомимся с ребёнком, покажем платформу и создадим первый проект
-                </p>
-                <ul className="space-y-3">
-                  {['Длительность 30 минут', 'Индивидуальное занятие', 'Подберём курс'].map((item, idx) => (
-                    <li key={idx} className="flex items-center gap-2">
-                      <Icon name="Check" size={20} className="text-orange-300" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <Card className="border-0 shadow-2xl">
-                <CardContent className="p-8 space-y-4">
-                  <Input 
-                    placeholder="Имя ребёнка" 
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    className="h-12"
-                  />
-                  <Input 
-                    placeholder="Ваш телефон" 
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                    className="h-12"
-                  />
-                  <Input 
-                    placeholder="Возраст ребёнка" 
-                    value={formData.age}
-                    onChange={(e) => setFormData({...formData, age: e.target.value})}
-                    className="h-12"
-                  />
-                  <Button className="w-full h-12 bg-primary hover:bg-primary/90 text-base font-semibold">
-                    Записаться на пробный урок
+                  <Button className="w-full bg-gradient-to-r from-blue-600 to-orange-500 hover:opacity-90 h-12 font-bold">
+                    Записаться со скидкой
                   </Button>
-                  <p className="text-xs text-gray-500 text-center">
-                    Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности
-                  </p>
                 </CardContent>
               </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 bg-gray-50">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold mb-4">Часто задаваемые вопросы</h2>
+          </div>
+
+          <Accordion type="single" collapsible className="space-y-4">
+            {[
+              { q: 'Подойдёт ли курс моему ребёнку?', a: 'Да! Мы подбираем программу под возраст и интересы каждого ребёнка. На пробном уроке преподаватель определит оптимальный курс.' },
+              { q: 'Нужны ли какие-то знания для старта?', a: 'Нет, абсолютно никаких знаний не требуется. Мы начинаем с нуля и постепенно переходим к более сложным темам.' },
+              { q: 'Как проходят занятия?', a: 'Занятия проходят онлайн в Zoom индивидуально с преподавателем. Длительность урока 60 минут. Ребёнок сразу практикуется на реальных проектах.' },
+              { q: 'Что если ребёнку не понравится?', a: 'Первый урок бесплатный — вы ничем не рискуете. Если после пробного урока решите не продолжать, просто скажите нам об этом.' },
+              { q: 'Какое оборудование нужно?', a: 'Достаточно компьютера или ноутбука с интернетом. Мы используем простые инструменты, которые работают в браузере.' }
+            ].map((item, idx) => (
+              <AccordionItem key={idx} value={`item-${idx}`} className="bg-white border-2 rounded-xl px-6">
+                <AccordionTrigger className="text-left font-semibold hover:no-underline">
+                  {item.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-gray-600">
+                  {item.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
+
+      <section className="py-20 bg-gradient-to-br from-blue-600 to-orange-500 text-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-2xl mx-auto text-center space-y-8">
+            <div className="inline-block bg-white/20 backdrop-blur-sm px-6 py-3 rounded-full font-bold">
+              ⏰ Осталось мест: 3 из 10
+            </div>
+
+            <h2 className="text-4xl md:text-5xl font-bold">
+              Запишитесь на бесплатный урок прямо сейчас
+            </h2>
+
+            <p className="text-xl text-blue-100">
+              Заполните форму и мы свяжемся с вами в течение 15 минут
+            </p>
+
+            <Card className="border-0 shadow-2xl">
+              <CardContent className="p-8 space-y-4">
+                <Input 
+                  placeholder="Имя ребёнка" 
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  className="h-14 text-lg"
+                />
+                <Input 
+                  placeholder="Ваш телефон" 
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                  className="h-14 text-lg"
+                />
+                <Button className="w-full h-14 bg-gradient-to-r from-blue-600 to-orange-500 hover:opacity-90 text-lg font-bold">
+                  Получить бесплатный урок
+                  <Icon name="Gift" size={24} />
+                </Button>
+                <p className="text-xs text-gray-500 text-center">
+                  Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности
+                </p>
+              </CardContent>
+            </Card>
+
+            <div className="flex justify-center gap-8 text-sm text-blue-100">
+              <div className="flex items-center gap-2">
+                <Icon name="Shield" size={18} />
+                <span>Безопасно</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Icon name="Lock" size={18} />
+                <span>Конфиденциально</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Icon name="CheckCircle" size={18} />
+                <span>Без спама</span>
+              </div>
             </div>
           </div>
         </div>
@@ -307,34 +364,25 @@ const Index = () => {
 
       <footer className="bg-gray-900 text-white py-12">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-3 gap-8 mb-8">
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-orange-500 rounded-lg flex items-center justify-center">
                   <Icon name="Code2" className="text-white" size={22} />
                 </div>
                 <span className="text-xl font-bold">Hello Code</span>
               </div>
               <p className="text-gray-400 text-sm">
-                Онлайн-школа программирования для детей от 6 до 16 лет
+                Онлайн-школа программирования для детей. Более 5000 довольных учеников.
               </p>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-4">Курсы</h4>
-              <div className="space-y-2 text-sm text-gray-400">
-                <div>Scratch</div>
-                <div>Python</div>
-                <div>Web-разработка</div>
-              </div>
             </div>
 
             <div>
               <h4 className="font-semibold mb-4">Контакты</h4>
               <div className="space-y-2 text-sm text-gray-400">
-                <div>hello@hellocode.ru</div>
                 <div>+7 (999) 123-45-67</div>
-                <div>Пн-Пт: 9:00 - 20:00</div>
+                <div>hello@hellocode.ru</div>
+                <div>Пн-Вс: 9:00 - 21:00</div>
               </div>
             </div>
 
@@ -353,7 +401,7 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
+          <div className="border-t border-gray-800 pt-8 text-center text-sm text-gray-400">
             <p>© 2026 Hello Code. Все права защищены.</p>
           </div>
         </div>
