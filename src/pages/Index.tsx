@@ -89,7 +89,7 @@ const Index = () => {
 
       <section className="py-20 bg-gradient-to-br from-purple-50 to-orange-50">
         <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-[1.2fr,0.8fr] gap-12 items-center">
             <div className="space-y-8">
               <Badge className="bg-primary/10 text-primary border-0 px-3 py-1 text-sm font-medium">
                 Онлайн-школа программирования для детей
